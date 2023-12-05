@@ -53,6 +53,8 @@ jobs:
       run: |
         New-SelfSignedCertificate -Subject "localhost" -FriendlyName "Puppeteer" -CertStoreLocation "cert:\CurrentUser\My"
         Get-ChildItem -Path cert:\CurrentUSer\my | where { $_.friendlyname -eq "Puppeteer" } | Export-Certificate -FilePath $env:GITHUB_WORKSPACE\lib\PuppeteerSharp.TestServer\testCert.cer
+    - name: Set up FFmpeg
+      uses: FedericoCarboni/setup-ffmpeg@5058c9851b649ced05c3e73a4fb5ef2995a89127 # v2.0.0
     - name: Build
       working-directory: lib
       run: dotnet build PuppeteerSharp.sln
