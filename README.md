@@ -53,10 +53,10 @@ await browserFetcher.DownloadAsync();
 await using var browser = await Puppeteer.LaunchAsync(
     new LaunchOptions { Headless = true });
 await using var page = await browser.NewPageAsync();
-await page.GoToAsync("http://www.google.com");
+await page.GoToAsync("https://www.google.com");
 await page.ScreenshotAsync(outputFile);
 ```
-<sup><a href='/lib/PuppeteerSharp.Tests/ScreenshotTests/PageScreenshotTests.cs#L61-L69' title='Snippet source file'>snippet source</a> | <a href='#snippet-screenshotasync' title='Start of snippet'>anchor</a></sup>
+<sup><a href='/lib/PuppeteerSharp.Tests/ScreenshotTests/PageScreenshotTests.cs#L55-L63' title='Snippet source file'>snippet source</a> | <a href='#snippet-screenshotasync' title='Start of snippet'>anchor</a></sup>
 <!-- endSnippet -->
 
 You can also change the view port before generating the screenshot
