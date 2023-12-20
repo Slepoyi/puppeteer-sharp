@@ -312,7 +312,7 @@ namespace PuppeteerSharp
         /// <summary>
         /// Adds a <c><![CDATA[<link rel="stylesheet">]]></c> tag into the page with the desired url or a <c><![CDATA[<link rel="stylesheet">]]></c> tag with the content.
         /// </summary>
-        /// <param name="url">stylesheel url.</param>
+        /// <param name="url">stylesheet url.</param>
         /// <remarks>
         /// Shortcut for <c>page.MainFrame.AddStyleTagAsync(new AddTagOptions { Url = url })</c>.
         /// </remarks>
@@ -739,7 +739,7 @@ namespace PuppeteerSharp
         /// <summary>
         /// Returns the page's cookies.
         /// </summary>
-        /// <param name="urls">Url's to return cookies for.</param>
+        /// <param name="urls">Urls to return cookies for.</param>
         /// <returns>Array of cookies.</returns>
         /// <remarks>
         /// If no URLs are specified, this method returns cookies for the current page URL.
@@ -1211,7 +1211,7 @@ namespace PuppeteerSharp
         /// <example>
         /// This method is typically coupled with an action that triggers file choosing.
         /// The following example clicks a button that issues a file chooser, and then
-        /// responds with `/tmp/myfile.pdf` as if a user has selected this file.
+        /// responds with `/tmp/my-file.pdf` as if a user has selected this file.
         /// <code>
         /// <![CDATA[
         /// var waitTask = page.WaitForFileChooserAsync();
@@ -1422,5 +1422,21 @@ namespace PuppeteerSharp
         /// </remarks>
         [Obsolete("Use " + nameof(QuerySelectorAsync) + " instead")]
         Task<IElementHandle[]> XPathAsync(string expression);
+
+        /// <summary>
+        /// Captures a screencast of this <see cref="IPage"/>.
+        /// </summary>
+        /// <param name="options">Configures screencast behavior.</param>
+        /// <remarks>
+        /// All recordings will be <see href="https://www.webmproject.org/">WebM</see> format using the <see href="https://www.webmproject.org/vp9/">VP9</see> video codec. The FPS is 30
+        /// You must have <see href="https://ffmpeg.org/">ffmpeg</see> installed on your system.
+        /// </remarks>
+        /// <example>
+        /// <code>
+        /// [!code-csharp[](../PuppeteerSharp.Tests/ScreencastTests/ScreencastTests.cs#ScreencastUsage)]
+        /// </code>
+        /// </example>
+        /// <returns>Task which resolves when the screencast is captured.</returns>
+        Task<IScreenRecorder> ScreencastAsync(ScreencastOptions options = null);
     }
 }

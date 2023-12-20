@@ -337,7 +337,80 @@ namespace PuppeteerSharp
         /// <inheritdoc/>
 #pragma warning disable CS0618 // Using obsolete
         public Task<IElementHandle[]> XPathAsync(string expression) => MainFrame.XPathAsync(expression);
+
 #pragma warning restore CS0618
+
+        /// <inheritdoc/>
+        public Task<IScreenRecorder> ScreencastAsync(ScreencastOptions options = null)
+        {
+            options ??= new ScreencastOptions();
+            var dimensions = GetNativePixelDimensionsAsync();
+            BoundingBox crop;
+
+            if (options.Crop != null)
+            {
+                var roundedBoundingBox = RoundRectangle(NormalizeRectangle(options.Crop));
+                if (x < 0 || y < 0) {
+                    throw new Error(
+                        `\`crop.x\` and \`crop.y\` must be greater than or equal to 0.`
+                        );
+                }
+                if (cropWidth <= 0 || cropHeight <= 0) {
+                    throw new Error(
+                        `\`crop.height\` and \`crop.width\` must be greater than or equal to 0.`
+                        );
+                }
+
+                const viewportWidth = width / devicePixelRatio;
+                const viewportHeight = width / devicePixelRatio;
+                if (x + cropWidth > viewportWidth) {
+                    throw new Error(
+                        `\`crop.width\` cannot be larger than the viewport width (${viewportWidth}).`
+                    );
+                }
+                if (y + cropHeight > viewportHeight) {
+                    throw new Error(
+                        `\`crop.height\` cannot be larger than the viewport height (${viewportHeight}).`
+                    );
+                }
+
+                crop = {
+                    x: x * devicePixelRatio,
+                        y: y * devicePixelRatio,
+                        width: cropWidth * devicePixelRatio,
+                        height: cropHeight * devicePixelRatio,
+                };
+            }
+            if (options.speed !== undefined && options.speed <= 0) {
+                throw new Error(`\`speed\` must be greater than 0.`);
+            }
+            if (options.scale !== undefined && options.scale <= 0) {
+                throw new Error(`\`scale\` must be greater than 0.`);
+            }
+
+            const recorder = new ScreenRecorder(this, width, height, {
+                ...options,
+                path: options.ffmpegPath,
+                crop,
+            });
+            try {
+                await this._startScreencast();
+            } catch (error) {
+                void recorder.stop();
+                throw error;
+            }
+            if (options.path) {
+                const {createWriteStream} = await import('fs');
+                const stream = createWriteStream(options.path, 'binary');
+                recorder.pipe(stream);
+            }
+            return recorder;
+        }
+
+        private BoundingBox NormalizeRectangle(BoundingBox optionsCrop)
+        {
+            throw new NotImplementedException();
+        }
 
         /// <inheritdoc/>
         public Task<IJSHandle> EvaluateExpressionHandleAsync(string script)
@@ -1219,6 +1292,37 @@ namespace PuppeteerSharp
             }
 
             return await ProtocolStreamReader.ReadProtocolStreamByteAsync(Client, result.Stream, file).ConfigureAwait(false);
+        }
+
+        private async Task<NativeDimension> GetNativePixelDimensionsAsync()
+        {
+            await using var disposableStack = new DisposableStack();
+
+            if (Viewport != null && Viewport.DeviceScaleFactor != 0)
+            {
+                await SetViewportAsync(Viewport with { DeviceScaleFactor = 0 }).ConfigureAwait(false);
+
+                disposableStack.Defer(async () =>
+                {
+                    try
+                    {
+                        await SetViewportAsync(Viewport).ConfigureAwait(false);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, ex.Message);
+                    }
+                });
+            }
+
+            return await FrameManager.MainFrame.IsolatedRealm
+                .EvaluateFunctionAsync<NativeDimension>(@"() => {
+                    return {
+                        Width: window.visualViewport!.width * window.devicePixelRatio,
+                        Height: window.visualViewport!.height * window.devicePixelRatio,
+                        DevicePixelRatio: window.devicePixelRatio,
+                    };
+                }").ConfigureAwait(false);
         }
 
         private async Task InitializeAsync()

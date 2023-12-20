@@ -3,7 +3,7 @@ namespace PuppeteerSharp
     /// <summary>
     /// View port options used on <see cref="IPage.SetViewportAsync(ViewPortOptions)"/>.
     /// </summary>
-    public class ViewPortOptions
+    public record ViewPortOptions
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ViewPortOptions"/> class.
@@ -18,7 +18,7 @@ namespace PuppeteerSharp
         /// <summary>
         /// Default Viewport.
         /// </summary>
-        public static ViewPortOptions Default => new ViewPortOptions
+        public static ViewPortOptions Default => new()
         {
             Width = 800,
             Height = 600,

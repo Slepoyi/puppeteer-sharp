@@ -5,6 +5,6 @@
     <TargetFramework>net7.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="PuppeteerSharp" Version="3.0.0" />
+    <PackageReference Include="PuppeteerSharp" Version="13.0.2" />
   </ItemGroup>
 </Project>

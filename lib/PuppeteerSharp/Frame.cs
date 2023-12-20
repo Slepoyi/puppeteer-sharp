@@ -109,7 +109,7 @@ namespace PuppeteerSharp
         public Task<IJSHandle> EvaluateFunctionHandleAsync(string function, params object[] args) => MainRealm.EvaluateFunctionHandleAsync(function, args);
 
         /// <inheritdoc/>
-        public async Task<IElementHandle> WaitForSelectorAsync(string selector, WaitForSelectorOptions options = null)
+        public Task<IElementHandle> WaitForSelectorAsync(string selector, WaitForSelectorOptions options = null)
         {
             if (string.IsNullOrEmpty(selector))
             {
@@ -117,7 +117,7 @@ namespace PuppeteerSharp
             }
 
             var (updatedSelector, queryHandler) = Client.Connection.CustomQuerySelectorRegistry.GetQueryHandlerAndSelector(selector);
-            return await queryHandler.WaitForAsync(this, null, updatedSelector, options).ConfigureAwait(false);
+            return queryHandler.WaitForAsync(this, null, updatedSelector, options);
         }
 
         /// <inheritdoc/>

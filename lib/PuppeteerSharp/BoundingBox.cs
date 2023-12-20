@@ -1,5 +1,3 @@
-using System;
-using Newtonsoft.Json;
 using PuppeteerSharp.Media;
 
 namespace PuppeteerSharp
@@ -7,7 +5,7 @@ namespace PuppeteerSharp
     /// <summary>
     /// Bounding box data returned by <see cref="IElementHandle.BoundingBoxAsync"/>.
     /// </summary>
-    public class BoundingBox : IEquatable<BoundingBox>
+    public record BoundingBox
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="BoundingBox"/> class.
@@ -54,37 +52,6 @@ namespace PuppeteerSharp
         /// </summary>
         /// <value>The height.</value>
         public decimal Height { get; set; }
-
-        /// <inheritdoc/>
-        public override bool Equals(object obj)
-        {
-            if (obj == null || GetType() != obj.GetType())
-            {
-                return false;
-            }
-
-            return Equals((BoundingBox)obj);
-        }
-
-        /// <summary>
-        /// Determines whether the specified <see cref="PuppeteerSharp.BoundingBox"/> is equal to the current <see cref="T:PuppeteerSharp.BoundingBox"/>.
-        /// </summary>
-        /// <param name="obj">The <see cref="PuppeteerSharp.BoundingBox"/> to compare with the current <see cref="T:PuppeteerSharp.BoundingBox"/>.</param>
-        /// <returns><c>true</c> if the specified <see cref="PuppeteerSharp.BoundingBox"/> is equal to the current
-        /// <see cref="T:PuppeteerSharp.BoundingBox"/>; otherwise, <c>false</c>.</returns>
-        public bool Equals(BoundingBox obj)
-            => obj != null &&
-                obj.X == X &&
-                obj.Y == Y &&
-                obj.Height == Height &&
-                obj.Width == Width;
-
-        /// <inheritdoc/>
-        public override int GetHashCode()
-            => X.GetHashCode() * 397
-                ^ Y.GetHashCode() * 397
-                ^ Width.GetHashCode() * 397
-                ^ Height.GetHashCode() * 397;
 
         internal Clip ToClip()
         {
