@@ -341,58 +341,66 @@ namespace PuppeteerSharp
 #pragma warning restore CS0618
 
         /// <inheritdoc/>
-        public Task<IScreenRecorder> ScreencastAsync(ScreencastOptions options = null)
+        public async Task<IScreenRecorder> ScreencastAsync(ScreencastOptions options = null)
         {
             options ??= new ScreencastOptions();
-            var dimensions = GetNativePixelDimensionsAsync();
+            var dimensions = await GetNativePixelDimensionsAsync().ConfigureAwait(false);
             BoundingBox crop;
 
             if (options.Crop != null)
             {
-                var roundedBoundingBox = RoundRectangle(NormalizeRectangle(options.Crop));
-                if (x < 0 || y < 0) {
-                    throw new Error(
-                        `\`crop.x\` and \`crop.y\` must be greater than or equal to 0.`
-                        );
-                }
-                if (cropWidth <= 0 || cropHeight <= 0) {
-                    throw new Error(
-                        `\`crop.height\` and \`crop.width\` must be greater than or equal to 0.`
-                        );
+                var (x, y, cropWidth, cropHeight) = RoundRectangle(NormalizeRectangle(options.Crop));
+                if (x < 0 || y < 0)
+                {
+                    throw new PuppeteerException("crop.X and crop.Y must be greater than or equal to 0.");
                 }
 
-                const viewportWidth = width / devicePixelRatio;
-                const viewportHeight = width / devicePixelRatio;
-                if (x + cropWidth > viewportWidth) {
-                    throw new Error(
-                        `\`crop.width\` cannot be larger than the viewport width (${viewportWidth}).`
-                    );
-                }
-                if (y + cropHeight > viewportHeight) {
-                    throw new Error(
-                        `\`crop.height\` cannot be larger than the viewport height (${viewportHeight}).`
-                    );
+                if (cropWidth <= 0 || cropHeight <= 0)
+                {
+                    throw new PuppeteerException("crop.Height and crop.Width must be greater than or equal to 0.");
                 }
 
-                crop = {
-                    x: x * devicePixelRatio,
-                        y: y * devicePixelRatio,
-                        width: cropWidth * devicePixelRatio,
-                        height: cropHeight * devicePixelRatio,
-                };
-            }
-            if (options.speed !== undefined && options.speed <= 0) {
-                throw new Error(`\`speed\` must be greater than 0.`);
-            }
-            if (options.scale !== undefined && options.scale <= 0) {
-                throw new Error(`\`scale\` must be greater than 0.`);
+                var viewportWidth = dimensions.Width / dimensions.DevicePixelRatio;
+                var viewportHeight = dimensions.Height / dimensions.DevicePixelRatio;
+
+                if (x + cropWidth > viewportWidth)
+                {
+                    throw new PuppeteerException($"crop.Width cannot be larger than the viewport width ({viewportWidth}).");
+                }
+
+                if (y + cropHeight > viewportHeight)
+                {
+                    throw new PuppeteerException($"crop.Height cannot be larger than the viewport width ({viewportHeight}).");
+                }
+
+                crop = new BoundingBox(
+                        x * dimensions.DevicePixelRatio,
+                        y * dimensions.DevicePixelRatio,
+                        cropWidth * dimensions.DevicePixelRatio,
+                        cropHeight * dimensions.DevicePixelRatio);
             }
 
-            const recorder = new ScreenRecorder(this, width, height, {
-                ...options,
-                path: options.ffmpegPath,
-                crop,
-            });
+            if (options.Speed <= 0)
+            {
+                throw new PuppeteerException("Speed must be greater than 0.");
+            }
+
+            if (options.Scale <= 0)
+            {
+                throw new PuppeteerException("Scale must be greater than 0.");
+            }
+
+            var recorder = new ScreenRecorder(
+                this,
+                dimensions.Width,
+                dimensions.Height,
+                new ScreenRecorderOptions()
+                {
+                    Scale = options.Scale,
+                    Speed = options.Speed,
+                    Path = options.FfmpegPath,
+                    Crop = crop,
+                });
             try {
                 await this._startScreencast();
             } catch (error) {
@@ -407,10 +415,23 @@ namespace PuppeteerSharp
             return recorder;
         }
 
-        private BoundingBox NormalizeRectangle(BoundingBox optionsCrop)
-        {
-            throw new NotImplementedException();
-        }
+        private BoundingBox RoundRectangle(BoundingBox clip)
+            => clip with
+            {
+                X = Math.Round(clip.X),
+                Y = Math.Round(clip.Y),
+                Width = Math.Round(clip.Width + clip.X) - Math.Round(clip.X),
+                Height = Math.Round(clip.Height + clip.Y) - Math.Round(clip.Y),
+            }
+
+        private BoundingBox NormalizeRectangle(BoundingBox clip)
+            => clip with
+            {
+                X = clip.Width < 0 ? clip.X + clip.Width : clip.X,
+                Y = clip.Height < 0 ? clip.Y + clip.Height : clip.Y,
+                Width = clip.Width < 0 ? -clip.Width : clip.Width,
+                Height = clip.Height < 0 ? -clip.Height : clip.Height,
+            };
 
         /// <inheritdoc/>
         public Task<IJSHandle> EvaluateExpressionHandleAsync(string script)

@@ -1,7 +1,7 @@
 namespace PuppeteerSharp
 {
     /// <summary>
-    /// Options for <see cref="IPage.ScreencastAsync(ScreencastOptions)"/>
+    /// Options for <see cref="IPage.ScreencastAsync(ScreencastOptions)"/>.
     /// </summary>
     public class ScreencastOptions
     {
@@ -25,5 +25,11 @@ namespace PuppeteerSharp
         /// 2 will double the width and height of the output video.
         /// </summary>
         public decimal Scale { get; set; } = 1;
+
+        /// <summary>
+        /// Specifies the speed to record at.
+        /// For example: 0.5 will record at half speed while 2 will double the speed of the video.
+        /// </summary>
+        public decimal Speed { get; set; } = 1;
     }
 }

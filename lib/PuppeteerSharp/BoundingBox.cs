@@ -63,5 +63,20 @@ namespace PuppeteerSharp
                 Height = Height,
             };
         }
+
+        /// <summary>
+        /// Deconstructs the <see cref="BoundingBox"/> into its components.
+        /// </summary>
+        /// <param name="x">X.</param>
+        /// <param name="y">Y.</param>
+        /// <param name="width">Width.</param>
+        /// <param name="height">Height.</param>
+        public void Deconstruct(out decimal x, out decimal y, out decimal width, out decimal height)
+        {
+            x = X;
+            y = Y;
+            width = Width;
+            height = Height;
+        }
     }
 }
