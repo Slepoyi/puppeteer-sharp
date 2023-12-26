@@ -345,7 +345,7 @@ namespace PuppeteerSharp
         {
             options ??= new ScreencastOptions();
             var dimensions = await GetNativePixelDimensionsAsync().ConfigureAwait(false);
-            BoundingBox crop;
+            BoundingBox crop = null;
 
             if (options.Crop != null)
             {
@@ -401,13 +401,20 @@ namespace PuppeteerSharp
                     Path = options.FfmpegPath,
                     Crop = crop,
                 });
-            try {
-                await this._startScreencast();
-            } catch (error) {
-                void recorder.stop();
-                throw error;
+
+            try
+            {
+                await StartScreencastAsync().ConfigureAwait(false);
             }
-            if (options.path) {
+            catch (Exception ex)
+            {
+                // StopAsync is not awaited upstream. But we will do it here.
+                await recorder.StopAsync().ConfigureAwait(false);
+                throw;
+            }
+
+            if (string.IsNullOrEmpty( options.Path))1
+            {
                 const {createWriteStream} = await import('fs');
                 const stream = createWriteStream(options.path, 'binary');
                 recorder.pipe(stream);
