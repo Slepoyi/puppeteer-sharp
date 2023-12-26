@@ -406,20 +406,24 @@ namespace PuppeteerSharp
             {
                 await StartScreencastAsync().ConfigureAwait(false);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // StopAsync is not awaited upstream. But we will do it here.
                 await recorder.StopAsync().ConfigureAwait(false);
                 throw;
             }
 
-            if (string.IsNullOrEmpty( options.Path))1
+            if (!string.IsNullOrEmpty(options.Path))
             {
-                const {createWriteStream} = await import('fs');
-                const stream = createWriteStream(options.path, 'binary');
-                recorder.pipe(stream);
+                recorder.Pipe(options.Path);
             }
+
             return recorder;
+        }
+
+        private Task StartScreencastAsync()
+        {
+            return Task.FromResult();
         }
 
         private BoundingBox RoundRectangle(BoundingBox clip)

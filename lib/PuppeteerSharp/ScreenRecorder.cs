@@ -21,6 +21,8 @@
 //  * SOFTWARE.
 
 using System;
+using System.IO;
+using System.Runtime.InteropServices.ComTypes;
 using System.Threading.Tasks;
 
 namespace PuppeteerSharp
@@ -28,20 +30,57 @@ namespace PuppeteerSharp
     /// <summary>
     /// Screen recorder.
     /// </summary>
-    public class ScreenRecorder : IScreenRecorder
+    public class ScreenRecorder(Page page, decimal width, decimal height, ScreenRecorderOptions options) : IScreenRecorder, IDisposable
     {
+        private StreamWriter _output = null;
+        private bool _isDisposed;
+
         /// <summary>
-        /// Initializes a new instance of the <see cref="ScreenRecorder"/> class.
+        /// Page instance.
         /// </summary>
-        /// <param name="page">Page.</param>
-        /// <param name="width">Width.</param>
-        /// <param name="height">Height.</param>
-        internal ScreenRecorder(Page page, decimal width, decimal height, ScreenRecorderOptions options)
-        {
-            throw new NotImplementedException();
-        }
+        public Page Page { get; } = page;
+
+        /// <summary>
+        /// Width.
+        /// </summary>
+        public decimal Width { get; } = width;
+
+        /// <summary>
+        /// Height.
+        /// </summary>
+        public decimal Height { get; } = height;
+
+        /// <summary>
+        /// Options.
+        /// </summary>
+        internal ScreenRecorderOptions Options { get; } = options;
 
         /// <inheritdoc />
         public Task StopAsync() => throw new System.NotImplementedException();
+
+        /// <inheritdoc />
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        internal void Pipe(string file) => _output = new StreamWriter(file);
+
+        /// <summary>
+        /// Dispose the screen recorder.
+        /// </summary>
+        /// <param name="disposing">Indicates whether disposal was initiated by <see cref="Dispose()"/> operation.</param>
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_isDisposed)
+            {
+                return;
+            }
+
+            _output?.Dispose();
+
+            _isDisposed = true;
+        }
     }
 }
