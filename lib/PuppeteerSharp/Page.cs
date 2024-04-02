@@ -429,10 +429,10 @@ namespace PuppeteerSharp
         }
 
         /// <inheritdoc/>
-        public Task ScreenshotAsync(string file) => ScreenshotAsync(file, new ScreenshotOptions());
+        public Task ScreenshotAsync(string file, ILogger logger, string trace) => ScreenshotAsync(file, new ScreenshotOptions(), logger, trace);
 
         /// <inheritdoc/>
-        public async Task ScreenshotAsync(string file, ScreenshotOptions options)
+        public async Task ScreenshotAsync(string file, ScreenshotOptions options, ILogger logger, string trace)
         {
             if (options == null)
             {
@@ -449,25 +449,31 @@ namespace PuppeteerSharp
                 }
             }
 
-            var data = await ScreenshotDataAsync(options).ConfigureAwait(false);
+            var data = await ScreenshotDataAsync(options, logger, trace).ConfigureAwait(false);
 
             using var fs = AsyncFileHelper.CreateStream(file, FileMode.Create);
             await fs.WriteAsync(data, 0, data.Length).ConfigureAwait(false);
         }
 
         /// <inheritdoc/>
-        public Task<Stream> ScreenshotStreamAsync() => ScreenshotStreamAsync(new ScreenshotOptions());
+        public Task<Stream> ScreenshotStreamAsync(ILogger logger, string trace) => ScreenshotStreamAsync(new ScreenshotOptions(), logger, trace);
 
         /// <inheritdoc/>
-        public async Task<Stream> ScreenshotStreamAsync(ScreenshotOptions options)
-            => new MemoryStream(await ScreenshotDataAsync(options).ConfigureAwait(false));
+        public async Task<Stream> ScreenshotStreamAsync(ScreenshotOptions options, ILogger logger, string trace)
+            => new MemoryStream(await ScreenshotDataAsync(options, logger, trace).ConfigureAwait(false));
 
         /// <inheritdoc/>
-        public Task<string> ScreenshotBase64Async() => ScreenshotBase64Async(new ScreenshotOptions());
+        public Task<string> ScreenshotBase64Async(ILogger logger, string trace) => ScreenshotBase64Async(new ScreenshotOptions(), logger, trace);
 
         /// <inheritdoc/>
+<<<<<<< Updated upstream
         public Task<string> ScreenshotBase64Async(ScreenshotOptions options)
             => _screenshotTaskQueue.Enqueue(async () =>
+=======
+        public Task<string> ScreenshotBase64Async(ScreenshotOptions options, ILogger logger, string trace)
+        {
+            if (options == null)
+>>>>>>> Stashed changes
             {
                 if (options == null)
                 {
@@ -506,6 +512,7 @@ namespace PuppeteerSharp
                     throw new ArgumentException("options.clip and options.fullPage are exclusive");
                 }
 
+<<<<<<< Updated upstream
                 var stack = new DisposableTasksStack();
                 await using (stack.ConfigureAwait(false))
                 {
@@ -589,13 +596,19 @@ namespace PuppeteerSharp
                     return result;
                 }
             });
+=======
+            logger.LogWarning($"Trace id: {trace} Enque screenshot");
+
+            return _screenshotTaskQueue.Enqueue(() => PerformScreenshot(screenshotType, options, logger, trace));
+        }
+>>>>>>> Stashed changes
 
         /// <inheritdoc/>
-        public Task<byte[]> ScreenshotDataAsync() => ScreenshotDataAsync(new ScreenshotOptions());
+        public Task<byte[]> ScreenshotDataAsync(ILogger logger, string trace) => ScreenshotDataAsync(new ScreenshotOptions(), logger, trace);
 
         /// <inheritdoc/>
-        public async Task<byte[]> ScreenshotDataAsync(ScreenshotOptions options)
-            => Convert.FromBase64String(await ScreenshotBase64Async(options).ConfigureAwait(false));
+        public async Task<byte[]> ScreenshotDataAsync(ScreenshotOptions options, ILogger logger, string trace)
+            => Convert.FromBase64String(await ScreenshotBase64Async(options, logger, trace).ConfigureAwait(false));
 
         /// <inheritdoc/>
         public Task<string> GetTitleAsync() => MainFrame.GetTitleAsync();
@@ -911,6 +924,7 @@ namespace PuppeteerSharp
         /// <returns>PDF data.</returns>
         protected abstract Task<byte[]> PdfInternalAsync(string file, PdfOptions options);
 
+<<<<<<< Updated upstream
         /// <summary>
         /// Screenshot implementation.
         /// </summary>
@@ -926,6 +940,161 @@ namespace PuppeteerSharp
         /// <param name="puppeteerFunction">Puppeteer function.</param>
         /// <returns>A <see cref="Task"/> that completes when the function has been added.</returns>
         protected abstract Task ExposeFunctionAsync(string name, Delegate puppeteerFunction);
+=======
+        private async Task<string> PerformScreenshot(ScreenshotType type, ScreenshotOptions options, ILogger logger, string trace)
+        {
+            logger.LogWarning($"Trace id: {trace} Somewhere in screenshotting depths");
+
+            var stack = new DisposableTasksStack();
+            await using (stack.ConfigureAwait(false))
+            {
+                logger.LogWarning($"Trace id: {trace} DeadlockSearcher: bringtofront");
+                if (!_screenshotBurstModeOn)
+                {
+                    await BringToFrontAsync().ConfigureAwait(false);
+                }
+
+                // FromSurface is not supported on Firefox.
+                // It seems that Puppeteer solved this just by ignoring screenshot tests in firefox.
+                if (Browser.BrowserType == SupportedBrowser.Firefox)
+                {
+                    if (options.FromSurface != null)
+                    {
+                        throw new ArgumentException(
+                            "Screenshots from surface are not supported on Firefox.",
+                            nameof(options.FromSurface));
+                    }
+                }
+                else
+                {
+                    options.FromSurface ??= true;
+                }
+
+                if (options.Clip != null && options.FullPage)
+                {
+                    throw new ArgumentException("Clip and FullPage are exclusive");
+                }
+
+                var clip = options.Clip != null ? RoundRectangle(NormalizeRectangle(options.Clip)) : null;
+                var captureBeyondViewport = options.CaptureBeyondViewport;
+
+                if (!_screenshotBurstModeOn)
+                {
+                    if (options.Clip == null)
+                    {
+                        if (options.FullPage)
+                        {
+                            // Overwrite clip for full page at all times.
+                            clip = null;
+                            logger.LogWarning($"Trace id: {trace} DeadlockSearcher: setviewport");
+                            if (!captureBeyondViewport)
+                            {
+                                var scrollDimensions = await FrameManager.MainFrame.IsolatedRealm
+                                    .EvaluateFunctionAsync<BoundingBox>(@"() => {
+                                        const element = document.documentElement;
+                                        return {
+                                            width: element.scrollWidth,
+                                            height: element.scrollHeight,
+                                        };
+                                    }").ConfigureAwait(false);
+
+                                var viewport = Viewport with { };
+
+                                await SetViewportAsync(viewport with
+                                {
+                                    Width = Convert.ToInt32(scrollDimensions.Width),
+                                    Height = Convert.ToInt32(scrollDimensions.Height),
+                                }).ConfigureAwait(false);
+
+                                stack.Defer(() => SetViewportAsync(viewport));
+                            }
+                        }
+                        else
+                        {
+                            captureBeyondViewport = false;
+                        }
+                    }
+
+                    logger.LogWarning($"Trace id: {trace} DeadlockSearcher: setbackgroundcolor (firefox?)");
+                    if (Browser.BrowserType != SupportedBrowser.Firefox &&
+                        options.OmitBackground &&
+                        (type == ScreenshotType.Png || type == ScreenshotType.Webp))
+                    {
+                        await _emulationManager.SetTransparentBackgroundColorAsync().ConfigureAwait(false);
+                        stack.Defer(() => _emulationManager.ResetDefaultBackgroundColorAsync());
+                    }
+                }
+
+                logger.LogWarning($"Trace id: {trace} DeadlockSearcher: setviewport 2");
+
+                if (clip != null && !captureBeyondViewport)
+                {
+                    var viewport = await FrameManager.MainFrame.IsolatedRealm.EvaluateFunctionAsync<BoundingBox>(
+                        @"() => {
+                        const {
+                            height,
+                            pageLeft: x,
+                            pageTop: y,
+                            width,
+                        } = window.visualViewport;
+                        return {x, y, height, width};
+                    }").ConfigureAwait(false);
+
+                    clip = GetIntersectionRect(clip, viewport);
+                }
+
+                options.OptimizeForSpeed = true;
+
+                var screenMessage = new PageCaptureScreenshotRequest
+                {
+                    Format = type.ToString().ToLower(CultureInfo.CurrentCulture),
+                    CaptureBeyondViewport = captureBeyondViewport,
+                    FromSurface = options.FromSurface,
+                    OptimizeForSpeed = options.OptimizeForSpeed,
+                };
+
+                if (options.Quality.HasValue)
+                {
+                    screenMessage.Quality = options.Quality.Value;
+                }
+
+                if (clip != null)
+                {
+                    screenMessage.Clip = clip;
+                }
+
+                logger.LogWarning($"Trace id: {trace} DeadlockSearcher: capturescreenshot");
+
+                var result = await PrimaryTargetClient
+                    .SendAsync<PageCaptureScreenshotResponse>("Page.captureScreenshot", screenMessage)
+                    .ConfigureAwait(false);
+
+                logger.LogWarning($"Trace id: {trace} Screenshot seems to be taken succesfully");
+
+                if (options.BurstMode)
+                {
+                    _screenshotBurstModeOptions = options;
+                    _screenshotBurstModeOn = true;
+                }
+
+                return result.Data;
+            }
+        }
+
+        private Clip GetIntersectionRect(Clip clip, BoundingBox viewport)
+        {
+            var x = Math.Max(clip.X, viewport.X);
+            var y = Math.Max(clip.Y, viewport.Y);
+
+            return new Clip()
+            {
+                X = x,
+                Y = y,
+                Width = Math.Min(clip.X + clip.Width, viewport.X + viewport.Width) - x,
+                Height = Math.Min(clip.Y + clip.Height, viewport.Y + viewport.Height) - y,
+            };
+        }
+>>>>>>> Stashed changes
 
         private Clip RoundRectangle(Clip clip)
         {
