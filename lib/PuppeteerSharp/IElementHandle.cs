@@ -158,7 +158,7 @@ namespace PuppeteerSharp
         Task<IElementHandle> QuerySelectorAsync(string selector);
 
         /// <summary>
-        /// This method scrolls element into view if needed, and then uses <see cref="IPage.ScreenshotAsync(string)"/> to take a screenshot of the element.
+        /// This method scrolls element into view if needed, and then uses to take a screenshot of the element.
         /// If the element is detached from DOM, the method throws an error.
         /// </summary>
         /// <returns>The task.</returns>
@@ -168,7 +168,7 @@ namespace PuppeteerSharp
         Task ScreenshotAsync(string file);
 
         /// <summary>
-        /// This method scrolls element into view if needed, and then uses <seealso cref="IPage.ScreenshotDataAsync(ScreenshotOptions)"/> to take a screenshot of the element.
+        /// This method scrolls element into view if needed, and then uses <seealso /> to take a screenshot of the element.
         /// If the element is detached from DOM, the method throws an error.
         /// </summary>
         /// <returns>The task.</returns>
@@ -179,14 +179,14 @@ namespace PuppeteerSharp
         Task ScreenshotAsync(string file, ElementScreenshotOptions options);
 
         /// <summary>
-        /// This method scrolls element into view if needed, and then uses <seealso cref="PuppeteerSharp.IPage.ScreenshotBase64Async(ScreenshotOptions)"/> to take a screenshot of the element.
+        /// This method scrolls element into view if needed, and then uses to take a screenshot of the element.
         /// If the element is detached from DOM, the method throws an error.
         /// </summary>
         /// <returns>Task which resolves to a <see cref="string"/> containing the image data as base64.</returns>
         Task<string> ScreenshotBase64Async();
 
         /// <summary>
-        /// This method scrolls element into view if needed, and then uses <seealso cref="PuppeteerSharp.IPage.ScreenshotBase64Async(ScreenshotOptions)"/> to take a screenshot of the element.
+        /// This method scrolls element into view if needed, and then uses <seealso /> to take a screenshot of the element.
         /// If the element is detached from DOM, the method throws an error.
         /// </summary>
         /// <returns>Task which resolves to a <see cref="string"/> containing the image data as base64.</returns>
@@ -194,14 +194,14 @@ namespace PuppeteerSharp
         Task<string> ScreenshotBase64Async(ElementScreenshotOptions options);
 
         /// <summary>
-        /// This method scrolls element into view if needed, and then uses <seealso cref="PuppeteerSharp.IPage.ScreenshotDataAsync(ScreenshotOptions)"/> to take a screenshot of the element.
+        /// This method scrolls element into view if needed, and then uses  to take a screenshot of the element.
         /// If the element is detached from DOM, the method throws an error.
         /// </summary>
         /// <returns>Task which resolves to a <see cref="byte"/>[] containing the image data.</returns>
         Task<byte[]> ScreenshotDataAsync();
 
         /// <summary>
-        /// This method scrolls element into view if needed, and then uses <seealso cref="PuppeteerSharp.IPage.ScreenshotDataAsync(ScreenshotOptions)"/> to take a screenshot of the element.
+        /// This method scrolls element into view if needed, and then uses to take a screenshot of the element.
         /// If the element is detached from DOM, the method throws an error.
         /// </summary>
         /// <returns>Task which resolves to a <see cref="byte"/>[] containing the image data.</returns>
@@ -209,14 +209,14 @@ namespace PuppeteerSharp
         Task<byte[]> ScreenshotDataAsync(ElementScreenshotOptions options);
 
         /// <summary>
-        /// This method scrolls element into view if needed, and then uses <seealso cref="PuppeteerSharp.IPage.ScreenshotDataAsync(ScreenshotOptions)"/> to take a screenshot of the element.
+        /// This method scrolls element into view if needed, and then uses to take a screenshot of the element.
         /// If the element is detached from DOM, the method throws an error.
         /// </summary>
         /// <returns>Task which resolves to a <see cref="Stream"/> containing the image data.</returns>
         Task<Stream> ScreenshotStreamAsync();
 
         /// <summary>
-        /// This method scrolls element into view if needed, and then uses <seealso cref="PuppeteerSharp.IPage.ScreenshotDataAsync(ScreenshotOptions)"/> to take a screenshot of the element.
+        /// This method scrolls element into view if needed, and then uses to take a screenshot of the element.
         /// If the element is detached from DOM, the method throws an error.
         /// </summary>
         /// <returns>Task which resolves to a <see cref="Stream"/> containing the image data.</returns>

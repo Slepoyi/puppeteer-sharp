@@ -6,7 +6,7 @@ using PuppeteerSharp.Media;
 namespace PuppeteerSharp
 {
     /// <summary>
-    /// Options to be used in <see cref="IPage.ScreenshotAsync(string, ScreenshotOptions)"/>, <see cref="IPage.ScreenshotStreamAsync(ScreenshotOptions)"/> and <see cref="IPage.ScreenshotDataAsync(ScreenshotOptions)"/>.
+    /// Options to be used in />.
     /// </summary>
     public class ScreenshotOptions
     {

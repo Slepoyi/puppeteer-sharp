@@ -127,7 +127,7 @@ namespace PuppeteerSharp
 
                 options.Clip = clip.ToClip();
 
-                return await page.ScreenshotBase64Async(options).ConfigureAwait(false);
+                return await page.ScreenshotBase64Async(options, null, null).ConfigureAwait(false);
             });
 
         /// <inheritdoc/>

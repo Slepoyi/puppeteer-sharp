@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using PuppeteerSharp.Input;
 using PuppeteerSharp.Media;
@@ -963,56 +964,70 @@ namespace PuppeteerSharp
         /// <param name="file">The file path to save the image to. The screenshot type will be inferred from file extension.
         /// If path is a relative path, then it is resolved relative to current working directory. If no path is provided,
         /// the image won't be saved to the disk.</param>
-        Task ScreenshotAsync(string file);
+        /// <param name="logger">STFU.</param>
+        /// <param name="trace">SSSSSSSS.</param>
+        Task ScreenshotAsync(string file, ILogger logger, string trace);
 
         /// <summary>
         /// Takes a screenshot of the page.
         /// </summary>
         /// <returns>The screenshot task.</returns>
-        /// <param name="file">The file path to save the image to. The screenshot type will be inferred from file extension.
-        /// If path is a relative path, then it is resolved relative to current working directory. If no path is provided,
-        /// the image won't be saved to the disk.</param>
+        /// <param name="file">The file path to save the image to. The screenshot type will be inferred from file extension.</param>
         /// <param name="options">Screenshot options.</param>
-        Task ScreenshotAsync(string file, ScreenshotOptions options);
+        /// <param name="logger">STFU.</param>
+        /// <param name="trace">SSSSSSSS.</param>
+        Task ScreenshotAsync(string file, ScreenshotOptions options, ILogger logger, string trace);
 
         /// <summary>
         /// Takes a screenshot of the page.
         /// </summary>
         /// <returns>Task which resolves to a <see cref="string"/> containing the image data as base64.</returns>
-        Task<string> ScreenshotBase64Async();
+        /// <param name="logger">STFU.</param>
+        /// <param name="trace">SSSSSSSS.</param>
+        Task<string> ScreenshotBase64Async(ILogger logger, string trace);
 
         /// <summary>
         /// Takes a screenshot of the page.
         /// </summary>
         /// <returns>Task which resolves to a <see cref="string"/> containing the image data as base64.</returns>
         /// <param name="options">Screenshot options.</param>
-        Task<string> ScreenshotBase64Async(ScreenshotOptions options);
+        /// <param name="logger">STFU.</param>
+        /// <param name="trace">SSSSSSSS.</param>
+        Task<string> ScreenshotBase64Async(ScreenshotOptions options, ILogger logger, string trace);
 
         /// <summary>
         /// Takes a screenshot of the page.
         /// </summary>
         /// <returns>Task which resolves to a <see cref="byte"/>[] containing the image data.</returns>
-        Task<byte[]> ScreenshotDataAsync();
+        /// <param name="logger">STFU.</param>
+        /// <param name="trace">SSSSSSSS.</param>
+        Task<byte[]> ScreenshotDataAsync(ILogger logger, string trace);
 
         /// <summary>
         /// Takes a screenshot of the page.
         /// </summary>
         /// <returns>Task which resolves to a <see cref="byte"/>[] containing the image data.</returns>
         /// <param name="options">Screenshot options.</param>
-        Task<byte[]> ScreenshotDataAsync(ScreenshotOptions options);
+        /// <param name="logger">STFU.</param>
+        /// <param name="trace">SSSSSSSS.</param>
+        Task<byte[]> ScreenshotDataAsync(ScreenshotOptions options, ILogger logger, string trace);
 
         /// <summary>
         /// Takes a screenshot of the page.
         /// </summary>
         /// <returns>Task which resolves to a <see cref="Stream"/> containing the image data.</returns>
-        Task<Stream> ScreenshotStreamAsync();
+        /// <param name="logger">STFU.</param>
+        /// <param name="trace">SSSSSSSS.</param>
+        Task<Stream> ScreenshotStreamAsync(ILogger logger, string trace);
 
         /// <summary>
         /// Takes a screenshot of the page.
         /// </summary>
         /// <returns>Task which resolves to a <see cref="Stream"/> containing the image data.</returns>
         /// <param name="options">Screenshot options.</param>
-        Task<Stream> ScreenshotStreamAsync(ScreenshotOptions options);
+        /// <param name="logger">STFU.</param>
+        /// <param name="trace">SSSSSSSS.</param>
+        Task<Stream> ScreenshotStreamAsync(ScreenshotOptions options, ILogger logger, string trace);
 
         /// <summary>
         /// Triggers a change and input event once all the provided options have been selected.

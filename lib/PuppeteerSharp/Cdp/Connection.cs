@@ -20,7 +20,7 @@ namespace PuppeteerSharp.Cdp
     /// </summary>
     public sealed class Connection : IDisposable, ICDPConnection
     {
-        internal const int DefaultCommandTimeout = 180_000;
+        internal const int DefaultCommandTimeout = 5000;
         private readonly ILogger _logger;
         private readonly TaskQueue _callbackQueue = new();
 
